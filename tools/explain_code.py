@@ -69,11 +69,7 @@ def explain_code(
 
     sections: list[str] = [_SYSTEM_PROMPT]
 
-    config_block = (
-        "## Configuration\n\n"
-        f"- **Audience**: {audience}\n"
-        f"- **Focus**: {explain_focus}"
-    )
+    config_block = f"## Configuration\n\n- **Audience**: {audience}\n- **Focus**: {explain_focus}"
     if file_path:
         config_block += f"\n- **File**: `{file_path}`"
     sections.append(config_block)

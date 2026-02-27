@@ -72,11 +72,7 @@ def generate_module_doc(
 
     sections: list[str] = [_SYSTEM_PROMPT]
 
-    config_block = (
-        "## Configuration\n\n"
-        f"- **Sections**: {doc_sections}\n"
-        f"- **Target audience**: {target_audience}"
-    )
+    config_block = f"## Configuration\n\n- **Sections**: {doc_sections}\n- **Target audience**: {target_audience}"
     if module_name:
         config_block += f"\n- **Module name**: `{module_name}`"
     sections.append(config_block)

@@ -64,9 +64,7 @@ def suggest_type_hints(
     sections: list[str] = [_SYSTEM_PROMPT]
 
     config_block = (
-        "## Configuration\n\n"
-        f"- **Strictness**: {strictness}\n"
-        f"- **Include return types**: {include_return_types}"
+        f"## Configuration\n\n- **Strictness**: {strictness}\n- **Include return types**: {include_return_types}"
     )
     if file_path:
         config_block += f"\n- **File**: `{file_path}`"

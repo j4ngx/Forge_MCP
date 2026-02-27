@@ -39,6 +39,16 @@ warn_unused_configs = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
 
+# mcp ships without py.typed / bundled stubs — suppress import-not-found
+[[tool.mypy.overrides]]
+module = ["mcp", "mcp.*"]
+ignore_missing_imports = true
+
+# @mcp.tool() is untyped in the mcp library; relax the decorator check only here
+[[tool.mypy.overrides]]
+module = "server"
+disallow_untyped_decorators = false
+
 [tool.hatch.build.targets.wheel]
 packages = ["tools", "utils"]
 

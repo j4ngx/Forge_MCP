@@ -38,12 +38,14 @@ _vscode_user_data_dir() {
 
 _build_mcp_json_entry() {
   local server_dir="$1"
+  local uv_cmd
+  uv_cmd="$(resolve_uv_cmd)"
   cat <<EOF
 {
   "servers": {
     "${VSCODE_MCP_SERVER_NAME}": {
       "type": "stdio",
-      "command": "uv",
+      "command": "${uv_cmd}",
       "args": ["--directory", "${server_dir}", "run", "server.py"]
     }
   }
@@ -68,17 +70,17 @@ _merge_mcp_json() {
 
     # Use Python to merge JSON (safe & handles comments)
     local py="${PYTHON_CMD:-python3}"
-    "$py" - "$mcp_json_path" "$server_dir" "$VSCODE_MCP_SERVER_NAME" <<'PYEOF'
-import json, sys, os
+    local uv_cmd
+    uv_cmd="$(resolve_uv_cmd)"
+    "$py" - "$mcp_json_path" "$server_dir" "$VSCODE_MCP_SERVER_NAME" "$uv_cmd" <<'PYEOF'
+import json, sys, re
 
-mcp_path, server_dir, server_name = sys.argv[1], sys.argv[2], sys.argv[3]
+mcp_path, server_dir, server_name, uv_cmd = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
 
-# Read existing (strip comments — VS Code JSON with comments)
+# Read existing (strip single-line comments — VS Code JSONC)
 with open(mcp_path, "r") as f:
     raw = f.read()
 
-# Remove single-line comments for parsing
-import re
 cleaned = re.sub(r'//.*', '', raw)
 
 try:
@@ -91,7 +93,7 @@ if "servers" not in data:
 
 data["servers"][server_name] = {
     "type": "stdio",
-    "command": "uv",
+    "command": uv_cmd,
     "args": ["--directory", server_dir, "run", "server.py"]
 }
 

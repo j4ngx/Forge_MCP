@@ -284,6 +284,34 @@ detect_arch() {
 }
 
 ###############################################################################
+# Resolve the absolute uv binary path for the current OS
+# (avoids asdf / pyenv shims that require a version entry in .tool-versions)
+###############################################################################
+
+resolve_uv_cmd() {
+  local candidates=()
+  if [[ "${OS_TYPE:-}" == "macos" ]]; then
+    candidates=(
+      "/opt/homebrew/bin/uv"   # Apple Silicon Homebrew
+      "/usr/local/bin/uv"      # Intel Mac Homebrew
+    )
+  else
+    candidates=(
+      "${HOME}/.local/bin/uv"  # uv installer default (Linux)
+      "/usr/local/bin/uv"
+    )
+  fi
+  local c
+  for c in "${candidates[@]}"; do
+    [[ -x "$c" ]] && echo "$c" && return 0
+  done
+  # Fallback: first match in PATH (may be a shim, best-effort)
+  local found
+  found="$(command -v uv 2>/dev/null || true)"
+  echo "${found:-uv}"
+}
+
+###############################################################################
 # Version comparison
 ###############################################################################
 

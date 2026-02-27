@@ -71,11 +71,7 @@ def analyze_code(
     sections: list[str] = [_SYSTEM_PROMPT]
 
     # Configuration
-    config_block = (
-        "## Analysis Configuration\n\n"
-        f"- **Focus**: {analysis_focus}\n"
-        f"- **Detail level**: {detail_level}"
-    )
+    config_block = f"## Analysis Configuration\n\n- **Focus**: {analysis_focus}\n- **Detail level**: {detail_level}"
     if file_path:
         config_block += f"\n- **File**: `{file_path}`"
     sections.append(config_block)

@@ -82,15 +82,12 @@ install_mcp_deps() {
 
   info "Installing MCP dependencies with uv…"
 
-  # Ensure .tool-versions exists (asdf compatibility)
-  if [[ ! -f "${install_dir}/.tool-versions" ]]; then
-    debug "Creating .tool-versions for asdf compatibility"
-    if [[ "$DRY_RUN" != true ]]; then
-      echo "uv 0.9.7" > "${install_dir}/.tool-versions"
-    fi
-  fi
+  # Resolve the absolute uv path (bypass asdf shims — see common.sh)
+  local uv_cmd
+  uv_cmd="$(resolve_uv_cmd)"
+  debug "Using uv at: ${uv_cmd}"
 
-  run_cmd uv --directory "$install_dir" sync
+  run_cmd "$uv_cmd" --directory "$install_dir" sync
 
   if (( $? == 0 )); then
     success "MCP dependencies installed"
@@ -121,8 +118,10 @@ verify_mcp_server() {
   info "Verifying MCP server can start…"
 
   local py="${PYTHON_CMD:-python3}"
+  local uv_cmd
+  uv_cmd="$(resolve_uv_cmd)"
   local test_output
-  test_output="$(cd "$install_dir" && uv run "$py" -c "
+  test_output="$(cd "$install_dir" && "$uv_cmd" run "$py" -c "
 from server import mcp
 print(f'forge_mcp server v{getattr(mcp, \"name\", \"unknown\")} OK')
 " 2>&1)"

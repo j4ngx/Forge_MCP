@@ -62,10 +62,7 @@ def decompose_function(
         raise ValueError(msg)
 
     if decomposition_strategy not in VALID_STRATEGIES:
-        msg = (
-            f"Invalid decomposition_strategy '{decomposition_strategy}'. "
-            f"Must be one of: {sorted(VALID_STRATEGIES)}"
-        )
+        msg = f"Invalid decomposition_strategy '{decomposition_strategy}'. Must be one of: {sorted(VALID_STRATEGIES)}"
         raise ValueError(msg)
 
     if not MAX_LINES_FLOOR <= max_lines_per_function <= MAX_LINES_CEILING:

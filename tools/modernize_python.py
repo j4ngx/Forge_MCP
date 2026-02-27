@@ -58,21 +58,14 @@ def modernize_python(
         raise ValueError(msg)
 
     if min_python_version not in VALID_PYTHON_VERSIONS:
-        msg = (
-            f"Invalid min_python_version '{min_python_version}'. "
-            f"Must be one of: {sorted(VALID_PYTHON_VERSIONS)}"
-        )
+        msg = f"Invalid min_python_version '{min_python_version}'. Must be one of: {sorted(VALID_PYTHON_VERSIONS)}"
         raise ValueError(msg)
 
     logger.info("modernize_python invoked — code length: %d characters", len(code))
 
     sections: list[str] = [_SYSTEM_PROMPT]
 
-    config_block = (
-        "## Configuration\n\n"
-        f"- **Min Python version**: {min_python_version}\n"
-        f"- **Aggressive**: {aggressive}"
-    )
+    config_block = f"## Configuration\n\n- **Min Python version**: {min_python_version}\n- **Aggressive**: {aggressive}"
     if file_path:
         config_block += f"\n- **File**: `{file_path}`"
     sections.append(config_block)

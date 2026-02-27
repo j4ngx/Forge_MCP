@@ -65,9 +65,7 @@ def suggest_test_cases(
     sections: list[str] = [_SYSTEM_PROMPT]
 
     config_block = (
-        "## Configuration\n\n"
-        f"- **Test depth**: {test_depth}\n"
-        f"- **Include integration tests**: {include_integration}"
+        f"## Configuration\n\n- **Test depth**: {test_depth}\n- **Include integration tests**: {include_integration}"
     )
     if file_path:
         config_block += f"\n- **Source file**: `{file_path}`"

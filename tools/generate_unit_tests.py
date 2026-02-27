@@ -26,9 +26,14 @@ _SYSTEM_PROMPT: str = load_prompt_cached(PROMPT_FILENAME)
 
 # ── Valid parameter values ───────────────────────────────────────────────────
 VALID_TEST_FRAMEWORKS: frozenset[str] = frozenset({"pytest"})
-VALID_COVERAGE_FOCUSES: frozenset[str] = frozenset({
-    "happy_path", "edge_cases", "errors", "comprehensive",
-})
+VALID_COVERAGE_FOCUSES: frozenset[str] = frozenset(
+    {
+        "happy_path",
+        "edge_cases",
+        "errors",
+        "comprehensive",
+    }
+)
 
 
 def generate_unit_tests(

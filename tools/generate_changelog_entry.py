@@ -25,9 +25,17 @@ TOOL_DESCRIPTION: str = (
 _SYSTEM_PROMPT: str = load_prompt_cached(PROMPT_FILENAME)
 
 # ── Valid parameter values ───────────────────────────────────────────────────
-VALID_CHANGE_TYPES: frozenset[str] = frozenset({
-    "added", "changed", "deprecated", "removed", "fixed", "security", "auto",
-})
+VALID_CHANGE_TYPES: frozenset[str] = frozenset(
+    {
+        "added",
+        "changed",
+        "deprecated",
+        "removed",
+        "fixed",
+        "security",
+        "auto",
+    }
+)
 
 
 def generate_changelog_entry(
@@ -68,11 +76,7 @@ def generate_changelog_entry(
 
     sections: list[str] = [_SYSTEM_PROMPT]
 
-    config_block = (
-        "## Configuration\n\n"
-        f"- **Version**: {version or '[Unreleased]'}\n"
-        f"- **Change type**: {change_type}"
-    )
+    config_block = f"## Configuration\n\n- **Version**: {version or '[Unreleased]'}\n- **Change type**: {change_type}"
     sections.append(config_block)
 
     if project_context and project_context.strip():

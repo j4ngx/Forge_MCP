@@ -52,6 +52,8 @@ source "${LIB_DIR}/mcp.sh"
 
 parse_args() {
   while [[ $# -gt 0 ]]; do
+    # SKIP_VSCODE / SKIP_MCP / INSTALL_FROM_LOCAL are consumed by sourced lib scripts
+    # shellcheck disable=SC2034
     case "$1" in
       --dry-run)         DRY_RUN=true ;;
       --non-interactive) NON_INTERACTIVE=true ;;
@@ -257,23 +259,23 @@ main() {
 
   # Step 1: Preflight
   tui_step_active 0
-  step_preflight && tui_step_done 0 || tui_step_failed 0
+  if step_preflight; then tui_step_done 0; else tui_step_failed 0; fi
 
   # Step 2: Python & uv
   tui_step_active 1
-  step_python && tui_step_done 1 || tui_step_failed 1
+  if step_python; then tui_step_done 1; else tui_step_failed 1; fi
 
   # Step 3: MCP server
   tui_step_active 2
-  step_mcp_source && tui_step_done 2 || tui_step_failed 2
+  if step_mcp_source; then tui_step_done 2; else tui_step_failed 2; fi
 
   # Step 4: VS Code
   tui_step_active 3
-  step_vscode && tui_step_done 3 || tui_step_failed 3
+  if step_vscode; then tui_step_done 3; else tui_step_failed 3; fi
 
   # Step 5: Verify
   tui_step_active 4
-  step_verify && tui_step_done 4 || tui_step_failed 4
+  if step_verify; then tui_step_done 4; else tui_step_failed 4; fi
 
   # --- Final render ---
   tui_steps_render

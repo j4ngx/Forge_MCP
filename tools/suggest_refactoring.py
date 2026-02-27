@@ -25,9 +25,15 @@ TOOL_DESCRIPTION: str = (
 _SYSTEM_PROMPT: str = load_prompt_cached(PROMPT_FILENAME)
 
 # ── Valid parameter values ───────────────────────────────────────────────────
-VALID_REFACTOR_GOALS: frozenset[str] = frozenset({
-    "readability", "performance", "maintainability", "testability", "all",
-})
+VALID_REFACTOR_GOALS: frozenset[str] = frozenset(
+    {
+        "readability",
+        "performance",
+        "maintainability",
+        "testability",
+        "all",
+    }
+)
 MAX_SUGGESTIONS_LIMIT: int = 50
 
 
@@ -72,11 +78,7 @@ def suggest_refactoring(
 
     sections: list[str] = [_SYSTEM_PROMPT]
 
-    config_block = (
-        "## Configuration\n\n"
-        f"- **Goals**: {refactor_goals}\n"
-        f"- **Max suggestions**: {max_suggestions}"
-    )
+    config_block = f"## Configuration\n\n- **Goals**: {refactor_goals}\n- **Max suggestions**: {max_suggestions}"
     if file_path:
         config_block += f"\n- **File**: `{file_path}`"
     sections.append(config_block)
