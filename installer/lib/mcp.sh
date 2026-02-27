@@ -86,7 +86,7 @@ install_mcp_deps() {
   if [[ ! -f "${install_dir}/.tool-versions" ]]; then
     debug "Creating .tool-versions for asdf compatibility"
     if [[ "$DRY_RUN" != true ]]; then
-      echo "ivm-uv 0.9.7" > "${install_dir}/.tool-versions"
+      echo "uv 0.9.7" > "${install_dir}/.tool-versions"
     fi
   fi
 
