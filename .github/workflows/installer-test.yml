@@ -1,0 +1,55 @@
+# =============================================================================
+# installer-test.yml — Validate the TUI installer on macOS & Ubuntu
+# =============================================================================
+name: Installer Test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "installer/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "installer/**"
+
+concurrency:
+  group: installer-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  installer-dry-run:
+    name: Dry-run (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Make installer executable
+        run: chmod +x installer/install.sh
+
+      - name: Run installer (dry-run)
+        run: bash installer/install.sh --dry-run --non-interactive --verbose --local
+
+      - name: Verify exit code
+        run: echo "Installer dry-run completed successfully"
+
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: sudo apt-get update -qq && sudo apt-get install -y shellcheck
+
+      - name: Lint installer scripts
+        run: |
+          shellcheck -x installer/install.sh
+          shellcheck -x installer/lib/*.sh

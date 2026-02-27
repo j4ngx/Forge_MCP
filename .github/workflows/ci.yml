@@ -1,0 +1,95 @@
+# =============================================================================
+# ci.yml — Lint, type-check, and smoke-test on every push / PR
+# =============================================================================
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Ruff lint
+        run: uvx ruff check .
+
+      - name: Ruff format check
+        run: uvx ruff format --check .
+
+  type-check:
+    name: Type Check (mypy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: mypy strict
+        run: uvx mypy .
+
+  smoke-test:
+    name: Smoke Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: uv sync --python ${{ matrix.python-version }}
+
+      - name: Verify server imports
+        run: uv run python -c "from server import mcp; print(f'OK — {len(mcp._tool_manager._tools)} tools registered')"
+
+      - name: Verify all tool imports
+        run: |
+          uv run python -c "
+          from tools.review_pr import review_pr
+          from tools.analyze_code import analyze_code
+          from tools.suggest_type_hints import suggest_type_hints
+          from tools.explain_code import explain_code
+          from tools.generate_docstrings import generate_docstrings
+          from tools.generate_module_doc import generate_module_doc
+          from tools.generate_changelog_entry import generate_changelog_entry
+          from tools.generate_unit_tests import generate_unit_tests
+          from tools.generate_test_fixtures import generate_test_fixtures
+          from tools.suggest_test_cases import suggest_test_cases
+          from tools.suggest_refactoring import suggest_refactoring
+          from tools.modernize_python import modernize_python
+          from tools.decompose_function import decompose_function
+          print('All 13 tool imports OK')
+          "
