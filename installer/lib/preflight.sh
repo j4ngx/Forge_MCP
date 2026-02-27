@@ -114,7 +114,12 @@ preflight_check_vscode() {
         "/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin/code-insiders"
       )
     else
-      paths+=("/usr/bin/code" "/snap/bin/code" "/usr/share/code/bin/code")
+      paths+=(
+        "/usr/bin/code"
+        "/snap/bin/code"
+        "/usr/share/code/bin/code"
+        "${HOME}/.var/app/com.visualstudio.code/usr/share/code/bin/code"
+      )
     fi
 
     for p in "${paths[@]}"; do
@@ -146,12 +151,7 @@ preflight_check_disk() {
   local min_mb="${MIN_DISK_MB:-200}"
   local avail_mb
 
-  if [[ "$OS_TYPE" == "macos" ]]; then
-    avail_mb="$(df -m "$target_dir" 2>/dev/null | awk 'NR==2{print $4}')"
-  else
-    avail_mb="$(df -m "$target_dir" 2>/dev/null | awk 'NR==2{print $4}')"
-  fi
-
+  avail_mb="$(df -m "$target_dir" 2>/dev/null | awk 'NR==2{print $4}')"
   avail_mb="${avail_mb:-0}"
 
   if (( avail_mb >= min_mb )); then

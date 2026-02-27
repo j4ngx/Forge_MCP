@@ -60,11 +60,13 @@ _install_python_macos() {
 }
 
 _install_python_linux() {
+  info "sudo may prompt for your password to install system packages…"
+
   if command -v apt-get &>/dev/null; then
     run_cmd sudo apt-get update -qq
-    run_cmd sudo apt-get install -y python3 python3-venv python3-pip
+    run_cmd sudo apt-get install -y python3 python3-venv python3-pip python3-dev
   elif command -v dnf &>/dev/null; then
-    run_cmd sudo dnf install -y python3 python3-pip
+    run_cmd sudo dnf install -y python3 python3-pip python3-devel
   elif command -v pacman &>/dev/null; then
     run_cmd sudo pacman -Sy --noconfirm python python-pip
   else

@@ -26,6 +26,8 @@ _vscode_user_data_dir() {
   else
     dir="${HOME}/.config/Code/User"
     [[ -d "$dir" ]] || dir="${HOME}/.config/Code - Insiders/User"
+    # Flatpak installation
+    [[ -d "$dir" ]] || dir="${HOME}/.var/app/com.visualstudio.code/config/Code/User"
   fi
   echo "$dir"
 }
