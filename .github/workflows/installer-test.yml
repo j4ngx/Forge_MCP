@@ -51,5 +51,5 @@ jobs:
 
       - name: Lint installer scripts
         run: |
-          shellcheck -x installer/install.sh
-          shellcheck -x installer/lib/*.sh
+          shellcheck -x --source-path=SCRIPTDIR installer/install.sh
+          shellcheck -x --source-path=SCRIPTDIR installer/lib/*.sh
