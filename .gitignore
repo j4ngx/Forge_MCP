@@ -1,0 +1,68 @@
+# =============================================================================
+# forge_mcp — .gitignore
+# =============================================================================
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+dist/
+build/
+*.whl
+
+# --- Virtual environments ---
+.venv/
+venv/
+ENV/
+
+# --- uv ---
+# Keep uv.lock committed for reproducible builds
+# uv.lock
+
+# --- IDE / Editors ---
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# --- OS artifacts ---
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# --- Environment / Secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+.secrets.baseline
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Installer runtime ---
+*.lock
+!uv.lock
+installer/*.lock
+
+# --- Testing ---
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Misc ---
+*.bak
+*.tmp
+*.temp
