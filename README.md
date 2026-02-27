@@ -23,8 +23,12 @@ A **Model Context Protocol (MCP)** server exposing developer-productivity tools 
 
 ## Features
 
-- 🔨 **`review_pr`** — Feeds a Git diff through a production-quality senior-reviewer system prompt and returns a structured Markdown review covering code quality, architecture, security, performance, testing, and documentation.
-- 📝 **Prompt-driven architecture** — Every tool loads its system prompt from a dedicated Markdown file under `prompts/`, making prompts easy to iterate on without touching code.
+- 🔨 **`review_pr`** — Senior-level PR reviewer returning structured Markdown reviews covering code quality, architecture, security, performance, testing, and documentation.
+- 🔍 **Code Quality** — `analyze_code`, `suggest_type_hints`, `explain_code` — static analysis, type-hint suggestions, and code explanations adapted to audience level.
+- 📝 **Documentation** — `generate_docstrings`, `generate_module_doc`, `generate_changelog_entry` — automated docstrings (Google/NumPy/Sphinx), module documentation, and changelog entries.
+- 🧪 **Testing** — `generate_unit_tests`, `generate_test_fixtures`, `suggest_test_cases` — pytest test generation with Polyfactory support, fixture scaffolding, and test-plan enumeration.
+- ♻️ **Refactoring** — `suggest_refactoring`, `modernize_python`, `decompose_function` — refactoring suggestions, Python 3.11+ modernisation, and function decomposition.
+- 📄 **Prompt-driven architecture** — Every tool loads its system prompt from a dedicated Markdown file under `prompts/`, making prompts easy to iterate on without touching code.
 - 🚀 **TUI Installer** — GLaDOS-style interactive installer with ASCII art, progress tracking, and health checks.
 - ⚡ **Easily extensible** — Add new tools by dropping a prompt and a thin Python module.
 - 🛡 **GitHub MCP integration** — The review prompt instructs the agent to fetch PR data and post reviews as PR comments via GitHub MCP tools.
@@ -38,6 +42,15 @@ cd forge_mcp && bash installer/install.sh --local
 ```
 
 ## Installation
+
+### Platform Support
+
+| Platform | Status | Package Manager |
+|----------|--------|-----------------|
+| **macOS** (Apple Silicon / Intel) | ✅ Fully supported | Homebrew |
+| **Linux** (Debian / Ubuntu) | ✅ Fully supported | apt-get |
+| **Linux** (Fedora / RHEL) | ✅ Supported | dnf |
+| **Linux** (Arch) | ✅ Supported | pacman |
 
 ### Automated (Recommended)
 
@@ -139,6 +152,126 @@ The agent will invoke the `review_pr` tool and return a structured review with:
 | `review_focus` | `str` | ❌ | `"balanced"` | `logic` \| `performance` \| `security` \| `style` \| `balanced` |
 | `detail_level` | `str` | ❌ | `"thorough"` | `summary` \| `thorough` |
 
+### Code Quality
+
+#### `analyze_code`
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `code` | `str` | ✅ | — | Python source code to analyze |
+| `file_path` | `str` | ❌ | `""` | Path of the file (context) |
+| `analysis_focus` | `str` | ❌ | `"all"` | `all` \| `complexity` \| `smells` \| `security` \| `style` |
+| `detail_level` | `str` | ❌ | `"standard"` | `brief` \| `standard` \| `verbose` |
+
+#### `suggest_type_hints`
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `code` | `str` | ✅ | — | Python source code |
+| `file_path` | `str` | ❌ | `""` | Path of the file (context) |
+| `strictness` | `str` | ❌ | `"strict"` | `basic` \| `strict` \| `complete` |
+| `include_return_types` | `bool` | ❌ | `True` | Include return-type suggestions |
+
+#### `explain_code`
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `code` | `str` | ✅ | — | Python source code to explain |
+| `file_path` | `str` | ❌ | `""` | Path of the file (context) |
+| `audience` | `str` | ❌ | `"mid"` | `junior` \| `mid` \| `senior` |
+| `explain_focus` | `str` | ❌ | `"overview"` | `overview` \| `flow` \| `complexity` \| `dependencies` |
+
+### Documentation
+
+#### `generate_docstrings`
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `code` | `str` | ✅ | — | Python source code to document |
+| `file_path` | `str` | ❌ | `""` | Path of the file (context) |
+| `docstring_style` | `str` | ❌ | `"google"` | `google` \| `numpy` \| `sphinx` |
+| `include_examples` | `bool` | ❌ | `True` | Include usage examples |
+| `include_raises` | `bool` | ❌ | `True` | Include Raises sections |
+
+#### `generate_module_doc`
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `code` | `str` | ✅ | — | Python module source code |
+| `module_name` | `str` | ❌ | `""` | Module name for the header |
+| `doc_sections` | `str` | ❌ | `"overview,usage,api"` | Comma-separated: `overview` \| `usage` \| `api` \| `examples` |
+| `target_audience` | `str` | ❌ | `"both"` | `user` \| `developer` \| `both` |
+
+#### `generate_changelog_entry`
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `changes` | `str` | ✅ | — | Diff, commits, or description |
+| `version` | `str` | ❌ | `""` | Semantic version (e.g., `"1.2.0"`) |
+| `change_type` | `str` | ❌ | `"auto"` | `auto` \| `added` \| `changed` \| `deprecated` \| `removed` \| `fixed` \| `security` |
+| `project_context` | `str` | ❌ | `""` | Additional project context |
+
+### Testing
+
+#### `generate_unit_tests`
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `code` | `str` | ✅ | — | Python source code to test |
+| `file_path` | `str` | ❌ | `""` | Path of the source file |
+| `test_framework` | `str` | ❌ | `"pytest"` | `pytest` (only supported) |
+| `use_polyfactory` | `bool` | ❌ | `True` | Generate Polyfactory factories |
+| `coverage_focus` | `str` | ❌ | `"comprehensive"` | `happy_path` \| `edge_cases` \| `errors` \| `comprehensive` |
+
+#### `generate_test_fixtures`
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `code` | `str` | ✅ | — | Python source code |
+| `models_code` | `str` | ❌ | `""` | Model definitions (Pydantic, etc.) |
+| `file_path` | `str` | ❌ | `""` | Path of the source file |
+| `fixture_scope` | `str` | ❌ | `"function"` | `function` \| `class` \| `module` \| `session` |
+| `include_factories` | `bool` | ❌ | `True` | Generate Polyfactory factories |
+
+#### `suggest_test_cases`
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `code` | `str` | ✅ | — | Python source code to analyze |
+| `file_path` | `str` | ❌ | `""` | Path of the source file |
+| `test_depth` | `str` | ❌ | `"thorough"` | `basic` \| `thorough` \| `exhaustive` |
+| `include_integration` | `bool` | ❌ | `False` | Include integration test suggestions |
+
+### Refactoring
+
+#### `suggest_refactoring`
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `code` | `str` | ✅ | — | Python source code |
+| `file_path` | `str` | ❌ | `""` | Path of the file |
+| `refactor_goals` | `str` | ❌ | `"all"` | `readability` \| `performance` \| `maintainability` \| `testability` \| `all` |
+| `max_suggestions` | `int` | ❌ | `10` | Max suggestions (1–50) |
+
+#### `modernize_python`
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `code` | `str` | ✅ | — | Python source code |
+| `file_path` | `str` | ❌ | `""` | Path of the file |
+| `min_python_version` | `str` | ❌ | `"3.11"` | `3.11` \| `3.12` \| `3.13` |
+| `aggressive` | `bool` | ❌ | `False` | Include structural rewrites |
+
+#### `decompose_function`
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `code` | `str` | ✅ | — | Source code containing the function |
+| `function_name` | `str` | ❌ | `""` | Function to decompose (auto-detects largest) |
+| `file_path` | `str` | ❌ | `""` | Path of the source file |
+| `max_lines_per_function` | `int` | ❌ | `30` | Target max lines (10–100) |
+| `decomposition_strategy` | `str` | ❌ | `"extract_method"` | `extract_method` \| `strategy_pattern` \| `pipeline` |
+
 ## Adding a New Tool
 
 1. **Create the prompt** — Add `prompts/<tool_name>.md`
@@ -177,7 +310,11 @@ forge_mcp/
 │   ├── ISSUE_TEMPLATE/
 │   │   ├── bug_report.md
 │   │   └── feature_request.md
-│   └── PULL_REQUEST_TEMPLATE.md
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   └── workflows/
+│       ├── ci.yml                # Lint, type-check, smoke-test
+│       ├── installer-test.yml    # Installer dry-run on macOS & Ubuntu
+│       └── release.yml           # Build & publish GitHub Release
 ├── .vscode/
 │   └── mcp.json                  # VS Code MCP server config (stdio)
 ├── installer/
@@ -190,10 +327,34 @@ forge_mcp/
 │       ├── vscode.sh             # VS Code mcp.json configuration
 │       └── mcp.sh                # MCP server clone/sync/verify
 ├── prompts/
-│   └── review_pr.md              # System prompt for the PR reviewer
+│   ├── review_pr.md              # System prompt: PR reviewer
+│   ├── analyze_code.md           # System prompt: code analysis
+│   ├── suggest_type_hints.md     # System prompt: type-hint suggestions
+│   ├── explain_code.md           # System prompt: code explanations
+│   ├── generate_docstrings.md    # System prompt: docstring generation
+│   ├── generate_module_doc.md    # System prompt: module documentation
+│   ├── generate_changelog_entry.md # System prompt: changelog entries
+│   ├── generate_unit_tests.md    # System prompt: unit-test generation
+│   ├── generate_test_fixtures.md # System prompt: fixture scaffolding
+│   ├── suggest_test_cases.md     # System prompt: test-case planning
+│   ├── suggest_refactoring.md    # System prompt: refactoring ideas
+│   ├── modernize_python.md       # System prompt: Python modernisation
+│   └── decompose_function.md     # System prompt: function decomposition
 ├── tools/
 │   ├── __init__.py
-│   └── review_pr.py              # review_pr tool definition
+│   ├── review_pr.py              # review_pr tool definition
+│   ├── analyze_code.py           # analyze_code tool
+│   ├── suggest_type_hints.py     # suggest_type_hints tool
+│   ├── explain_code.py           # explain_code tool
+│   ├── generate_docstrings.py    # generate_docstrings tool
+│   ├── generate_module_doc.py    # generate_module_doc tool
+│   ├── generate_changelog_entry.py # generate_changelog_entry tool
+│   ├── generate_unit_tests.py    # generate_unit_tests tool
+│   ├── generate_test_fixtures.py # generate_test_fixtures tool
+│   ├── suggest_test_cases.py     # suggest_test_cases tool
+│   ├── suggest_refactoring.py    # suggest_refactoring tool
+│   ├── modernize_python.py       # modernize_python tool
+│   └── decompose_function.py     # decompose_function tool
 ├── utils/
 │   ├── __init__.py
 │   └── prompt_loader.py          # Reusable prompt-loading utility
@@ -203,7 +364,7 @@ forge_mcp/
 ├── .gitignore
 ├── .gitattributes
 ├── .editorconfig
-├── .tool-versions                # asdf version pinning (ivm-uv)
+├── .tool-versions                # Version pinning comment
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
 ├── SECURITY.md
@@ -218,20 +379,33 @@ forge_mcp/
 uv run server.py
 
 # Lint
-uv run ruff check .
+uvx ruff check .
 
 # Auto-fix
-uv run ruff check . --fix
+uvx ruff check . --fix
 
 # Format
-uv run ruff format .
+uvx ruff format .
 
 # Type-check
-uv run mypy .
+uvx mypy .
 
-# Test installer (dry-run)
+# Test installer (dry-run, macOS)
 bash installer/install.sh --dry-run --verbose
+
+# Test installer (dry-run, Linux)
+bash installer/install.sh --dry-run --non-interactive --verbose
 ```
+
+## CI/CD
+
+Three GitHub Actions workflows run automatically:
+
+| Workflow | Trigger | What it does |
+|----------|---------|--------------|
+| **CI** (`ci.yml`) | Push / PR to `main` | Ruff lint & format check, mypy strict, smoke-test on Python 3.11–3.13 |
+| **Installer Test** (`installer-test.yml`) | Changes to `installer/**` | Dry-run installer on macOS & Ubuntu, ShellCheck lint |
+| **Release** (`release.yml`) | Tag push `v*` | Quality gate → build wheel/sdist → create GitHub Release with artifacts |
 
 ## Contributing
 
