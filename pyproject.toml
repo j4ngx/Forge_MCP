@@ -1,7 +1,7 @@
 [project]
 name = "forge-mcp"
-version = "0.1.0"
-description = "A Model Context Protocol (MCP) server for developer productivity tools, starting with a senior PR reviewer."
+version = "0.3.0"
+description = "A Model Context Protocol (MCP) server for developer productivity tools: PR review and end-to-end GitHub issue implementation."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -38,16 +38,6 @@ warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
-
-# mcp ships without py.typed / bundled stubs — suppress import-not-found
-[[tool.mypy.overrides]]
-module = ["mcp", "mcp.*"]
-ignore_missing_imports = true
-
-# @mcp.tool() is untyped in the mcp library; relax the decorator check only here
-[[tool.mypy.overrides]]
-module = "server"
-disallow_untyped_decorators = false
 
 [tool.hatch.build.targets.wheel]
 packages = ["tools", "utils"]

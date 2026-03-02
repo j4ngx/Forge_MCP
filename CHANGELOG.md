@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-03-02
+
+### Added
+
+- **`apply_issue`** — End-to-end GitHub issue implementation tool:
+  - Creates a branch via `gh buddy create-branch` with auto-checkout
+  - Issue details fetched by calling agent via `mcp_github_issue_read` (passed as params)
+  - Proposes a detailed action plan with a **mandatory approval gate** before coding
+  - Implements the solution following best practices from the system prompt
+  - Self-reviews using the existing `review_pr` tool
+  - Creates the PR via `gh buddy create-pr`
+- **`prompts/apply_issue.md`** — System prompt with 6-step workflow, coding standards, and structured action plan template
+
+### Removed
+
+- Removed 12 unused tool modules: `analyze_code`, `decompose_function`, `explain_code`, `generate_changelog_entry`, `generate_docstrings`, `generate_module_doc`, `generate_test_fixtures`, `generate_unit_tests`, `modernize_python`, `suggest_refactoring`, `suggest_test_cases`, `suggest_type_hints`
+- Removed 12 corresponding prompt files from `prompts/`
+
+### Changed
+
+- Simplified `server.py` — only registers `review_pr` and `apply_issue`
+- Updated `tools/__init__.py` docstring to reflect active tools
+- Updated `README.md` with new tool documentation, prerequisites (`gh`, `gh buddy`), usage examples, and project structure
+- Bumped version to `0.3.0`
+
 ## [0.2.0] - 2026-02-28
 
 ### Added
@@ -59,5 +84,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **VS Code configuration** via `.vscode/mcp.json` (stdio transport)
 - **Project tooling** — Ruff linting, mypy strict type checking, hatchling build
 
+[0.3.0]: https://github.com/j4ngx/forge_mcp/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/j4ngx/forge_mcp/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/j4ngx/forge_mcp/releases/tag/v0.1.0
