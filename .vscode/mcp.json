@@ -2,7 +2,7 @@
   "servers": {
     "forge_mcp": {
       "type": "stdio",
-      "command": "/opt/homebrew/bin/uv",
+      "command": "uv",
       "args": ["run", "server.py"]
     }
   }
