@@ -8,6 +8,7 @@ A **Model Context Protocol (MCP)** server exposing developer-productivity tools 
 |------|-------------|
 | **`review_pr`** | Senior-level Python PR code review. Accepts a Git diff and optional metadata, returns a structured Markdown review covering logic, design, security, performance, testing, readability, and integration. |
 | **`apply_issue`** | End-to-end GitHub issue implementation. Creates a branch via `gh buddy`, proposes an action plan with a **mandatory approval gate**, implements the solution, self-reviews using `review_pr`, and creates a PR. |
+| **`scaffold_project`** | Generate a complete hexagonal-architecture Python project on disk. Accepts entity names and creates domain models, repository ports, services, use cases, mappers, ORM entities, controllers, DI modules, REST stubs, and tests — supporting both AMIGA and generic (vanilla FastAPI) stacks. |
 
 **Architecture highlights:**
 
@@ -83,6 +84,18 @@ The agent will:
 5. Self-review using the `review_pr` tool.
 6. Fix any issues found and create the PR via `gh buddy create-pr`.
 
+### Scaffold a Hexagonal Project
+
+Ask the agent to scaffold a new project:
+
+> *Scaffold a new hexagonal project called "inventory" with entities Product, Category, Warehouse*
+
+The agent will invoke the `scaffold_project` tool and generate the full directory structure under `code/` with boilerplate for all layers (domain, application, infrastructure, REST, tests).
+
+You can also specify the stack and database:
+
+> *Scaffold project "billing" with entities Invoice, Payment using the amiga stack and mariadb*
+
 ## Adding a New Tool
 
 1. **Create a prompt** — Add `prompts/<tool_name>.md` with the full system prompt.
@@ -94,13 +107,17 @@ The agent will:
 
 ```
 forge_mcp/
+├── docs/
+│   └── hexagonal-architecture.md  # Canonical hexagonal architecture reference
 ├── prompts/
 │   ├── apply_issue.md        # System prompt for the issue implementation tool
-│   └── review_pr.md          # System prompt for the PR reviewer tool
+│   ├── review_pr.md          # System prompt for the PR reviewer tool
+│   └── scaffold_project.md   # System prompt for the project scaffolder tool
 ├── tools/
 │   ├── __init__.py
 │   ├── apply_issue.py        # Tool: end-to-end issue implementation
-│   └── review_pr.py          # Tool: senior PR code reviewer
+│   ├── review_pr.py          # Tool: senior PR code reviewer
+│   └── scaffold_project.py   # Tool: hexagonal project scaffolder
 ├── utils/
 │   ├── __init__.py
 │   └── prompt_loader.py      # Reusable prompt-loading utility with caching
