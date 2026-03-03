@@ -20,6 +20,9 @@ from tools.apply_issue import apply_issue
 from tools.review_pr import TOOL_DESCRIPTION as REVIEW_PR_DESCRIPTION
 from tools.review_pr import TOOL_NAME as REVIEW_PR_NAME
 from tools.review_pr import review_pr
+from tools.scaffold_project import TOOL_DESCRIPTION as SCAFFOLD_PROJECT_DESCRIPTION
+from tools.scaffold_project import TOOL_NAME as SCAFFOLD_PROJECT_NAME
+from tools.scaffold_project import scaffold_project
 
 # ── Logging ──────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -149,6 +152,59 @@ def tool_apply_issue(
     except Exception as exc:
         logger.exception("Unexpected error in apply_issue")
         return f"An unexpected error occurred while applying the issue: {exc}"
+
+
+@mcp.tool(name=SCAFFOLD_PROJECT_NAME, description=SCAFFOLD_PROJECT_DESCRIPTION)
+def tool_scaffold_project(
+    project_name: str,
+    entity_names: str,
+    stack: str = "generic",
+    python_version: str = "3.11",
+    db_backend: str = "postgresql",
+    base_path: str = "",
+    repo_context: str = "",
+) -> str:
+    """Generate a hexagonal-architecture Python project on disk.
+
+    Creates a complete directory structure with boilerplate code for every
+    layer (domain, application, infrastructure, REST, tests).
+
+    Args:
+        project_name: Name of the project (Python package name).
+        entity_names: Comma-separated entity names
+            (e.g. ``"Catalog, Control, Framework"``).
+        stack: ``"amiga"`` (opyoid DI) or ``"generic"`` (vanilla FastAPI).
+            Defaults to ``"generic"``.
+        python_version: Target Python version (e.g. ``"3.11"``).
+        db_backend: ``"postgresql"`` (default), ``"mariadb"``, or
+            ``"sqlite"``.
+        base_path: Root directory for the generated project. Defaults to
+            the current working directory.
+        repo_context: Free-text project context (conventions, architecture
+            notes, etc.). Optional.
+
+    Returns:
+        A structured Markdown report with the scaffold summary and next steps.
+    """
+    try:
+        return scaffold_project(
+            project_name=project_name,
+            entity_names=entity_names,
+            stack=stack,
+            python_version=python_version,
+            db_backend=db_backend,
+            base_path=base_path,
+            repo_context=repo_context,
+        )
+    except ValueError as exc:
+        logger.error("scaffold_project validation error: %s", exc)
+        return f"Error: {exc}"
+    except OSError as exc:
+        logger.error("scaffold_project OS error: %s", exc)
+        return f"Error: {exc}"
+    except Exception as exc:
+        logger.exception("Unexpected error in scaffold_project")
+        return f"An unexpected error occurred while scaffolding the project: {exc}"
 
 
 # ── Entrypoint ───────────────────────────────────────────────────────────────
