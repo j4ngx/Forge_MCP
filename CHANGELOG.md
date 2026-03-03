@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Per-entity generation: domain model, repository port, domain service, CRUD use cases, application mapper, ORM entity, infrastructure mapper, database repository, repository adapter, controller, DI module, and REST implementation stub
   - Test stubs for domain model, domain service, and use cases (pytest + pytest-asyncio)
   - Shared infrastructure: `DeclarativeBase`, read-only/read-write database repository bases, `DatabaseFactory`, domain/shared exceptions, `pyproject.toml`, `conftest.py`
-  - Configurable stack: `"amiga"` (opyoid DI, AMIGA framework) or `"generic"` (vanilla FastAPI)
+  - Configurable stack: `"generic"` (vanilla FastAPI)
   - Configurable database backend: `postgresql`, `mariadb`, `sqlite`
 - **`docs/hexagonal-architecture.md`** — Comprehensive reference document covering directory structure, layer specifications, naming conventions, dependency rules, DI patterns, test structure, stack variants, and code patterns
 - **`prompts/scaffold_project.md`** — System prompt defining the scaffolder's 7-step workflow, coding standards, and output format
@@ -66,7 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Replaced Inditex-internal `ivm-uv` with standard community `uv` across `.tool-versions`, installer, and documentation
+- Replaced internal `ivm-uv` with standard community `uv` across `.tool-versions`, installer, and documentation
 
 ### Improved
 

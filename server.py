@@ -173,8 +173,7 @@ def tool_scaffold_project(
         project_name: Name of the project (Python package name).
         entity_names: Comma-separated entity names
             (e.g. ``"Catalog, Control, Framework"``).
-        stack: ``"amiga"`` (opyoid DI) or ``"generic"`` (vanilla FastAPI).
-            Defaults to ``"generic"``.
+        stack: ``"generic"`` (vanilla FastAPI). Defaults to ``"generic"``.
         python_version: Target Python version (e.g. ``"3.11"``).
         db_backend: ``"postgresql"`` (default), ``"mariadb"``, or
             ``"sqlite"``.
