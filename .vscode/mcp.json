@@ -1,9 +1,3 @@
 {
-  "servers": {
-    "forge_mcp": {
-      "type": "stdio",
-      "command": "uv",
-      "args": ["run", "server.py"]
-    }
-  }
+	"servers": {}
 }

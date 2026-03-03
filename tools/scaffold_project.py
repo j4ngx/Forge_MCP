@@ -29,7 +29,7 @@ TOOL_NAME: str = "scaffold_project"
 TOOL_DESCRIPTION: str = (
     "Generate a complete hexagonal-architecture Python project on disk. "
     "Accepts a project name, one or more entity names (comma-separated), "
-    "an optional stack ('amiga' or 'generic'), a Python version, and a "
+    "an optional stack ('generic'), a Python version, and a "
     "database backend. Creates the full directory structure with boilerplate "
     "code for every layer: domain, application, infrastructure, REST, and "
     "tests — following the patterns defined in docs/hexagonal-architecture.md."
@@ -38,7 +38,7 @@ TOOL_DESCRIPTION: str = (
 _SYSTEM_PROMPT: str = load_prompt_cached(PROMPT_FILENAME)
 
 # ── Valid parameter values ───────────────────────────────────────────────────
-VALID_STACKS: frozenset[str] = frozenset({"amiga", "generic"})
+VALID_STACKS: frozenset[str] = frozenset({"generic"})
 VALID_DB_BACKENDS: frozenset[str] = frozenset({"postgresql", "mariadb", "sqlite"})
 
 # ── Naming helpers ───────────────────────────────────────────────────────────
@@ -889,52 +889,13 @@ def _gen_di_module(pkg: Path, proj: str, pascal: str, snake: str, stack: str) ->
         proj: Project name (snake_case).
         pascal: Entity name in PascalCase.
         snake: Entity name in snake_case.
-        stack: ``"amiga"`` or ``"generic"``.
+        stack: ``"generic"``.
 
     Returns:
         The generated file path.
     """
     p = pkg / "infrastructure" / "di" / f"{snake}_module.py"
-    if stack == "amiga":
-        _w(
-            p,
-            f'''\
-            """DI module for {pascal} (opyoid / AMIGA stack)."""
-
-            from opyoid import Module
-
-            from {proj}.application.use_case.{snake}.create_{snake}_use_case import Create{pascal}UseCase
-            from {proj}.application.use_case.{snake}.delete_{snake}_use_case import Delete{pascal}UseCase
-            from {proj}.application.use_case.{snake}.get_{snake}_use_case import Get{pascal}UseCase
-            from {proj}.application.use_case.{snake}.update_{snake}_use_case import Update{pascal}UseCase
-            from {proj}.domain.repository.{snake}_repository_port import {pascal}RepositoryPort
-            from {proj}.domain.service.{snake}_domain_service import {pascal}DomainService
-            from {proj}.infrastructure.controller.{snake}_controller import {pascal}Controller
-            from {proj}.infrastructure.repository.{snake}_repository import {pascal}Repository
-
-
-            class {pascal}Module(Module):
-                """Opyoid DI module binding {pascal} components."""
-
-                def configure(self) -> None:
-                    """Bind ports, services, use cases, and controllers."""
-                    # Port -> Adapter
-                    self.bind({pascal}RepositoryPort, to_class={pascal}Repository)
-
-                    # Domain services
-                    self.bind({pascal}DomainService)
-
-                    # Use cases
-                    self.bind(Get{pascal}UseCase)
-                    self.bind(Create{pascal}UseCase)
-                    self.bind(Update{pascal}UseCase)
-                    self.bind(Delete{pascal}UseCase)
-
-                    # Controller
-                    self.bind({pascal}Controller)
-            ''',
-        )
-    else:
+    if stack == "generic":
         _w(
             p,
             f'''\
@@ -1246,7 +1207,7 @@ def _gen_pyproject(code_dir: Path, proj: str, stack: str, python_version: str, d
     Args:
         code_dir: The ``code/`` directory path.
         proj: Project name (snake_case).
-        stack: ``"amiga"`` or ``"generic"``.
+        stack: ``"generic"``.
         python_version: Target Python version (e.g. ``"3.11"``).
         db_backend: Database backend (``"postgresql"``, ``"mariadb"``, ``"sqlite"``).
 
@@ -1260,13 +1221,7 @@ def _gen_pyproject(code_dir: Path, proj: str, stack: str, python_version: str, d
     }
     driver_dep = db_drivers.get(db_backend, '"asyncpg>=0.29.0"')
 
-    if stack == "amiga":
-        deps = f"""\
-dependencies = [
-    "fwk-amigapython[rest-server,database-sql]",
-    {driver_dep},
-]"""
-    else:
+    if stack == "generic":
         deps = f"""\
 dependencies = [
     "fastapi>=0.115.0",
@@ -1514,8 +1469,8 @@ def scaffold_project(  # noqa: PLR0913
             Will be normalised to snake_case.
         entity_names: Comma-separated list of entity names
             (e.g. ``"Catalog, Control, Framework"``).
-        stack: Target stack — ``"amiga"`` for AMIGA/opyoid DI or
-            ``"generic"`` for vanilla FastAPI. Defaults to ``"generic"``.
+        stack: Target stack — ``"generic"`` for vanilla FastAPI.
+            Defaults to ``"generic"``.
         python_version: Target Python version (e.g. ``"3.11"``).
             Defaults to ``"3.11"``.
         db_backend: Database backend — ``"postgresql"`` (default),

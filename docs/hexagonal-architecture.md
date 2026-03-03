@@ -1,7 +1,7 @@
 # Hexagonal Architecture Reference — Python Projects
 
 > This document defines the hexagonal (ports & adapters) architecture pattern
-> as implemented in Inditex Python services. It serves as the canonical
+> as implemented in Python services. It serves as the canonical
 > reference for the `scaffold_project` MCP tool and for any developer
 > building or extending a hexagonal project.
 
@@ -662,20 +662,7 @@ from itself and the standard library (plus `AsyncSession` for type hints).
 
 ## Dependency Injection
 
-### AMIGA Stack (opyoid)
-
-```python
-# <project>/__init__.py
-from amiga.startup import AmigaStartup
-from <project>.infrastructure.di import <Entity>Module, AnotherModule
-
-@AmigaStartup(modules=[<Entity>Module, AnotherModule])
-def main():
-    from <project> import __main__
-    __main__.main()
-```
-
-### Generic Stack (manual / dependency-injector)
+### Manual Wiring / dependency-injector
 
 ```python
 # <project>/__init__.py
@@ -723,20 +710,20 @@ tests/unit/<project>/
 
 ---
 
-## Stack Variants
+## Stack Summary
 
-| Aspect | AMIGA Stack | Generic Stack |
-|--------|-------------|---------------|
-| **Framework** | AMIGA Python + FastAPI | Vanilla FastAPI |
-| **DI** | `opyoid.Module` + `@AmigaStartup` | Manual wiring or `dependency-injector` |
-| **Database** | AMIGA `AmigaSQLBuilder` + `DatabaseFactory` | Vanilla SQLAlchemy async session |
-| **Auth** | `@user_permissions_check` decorator | Custom middleware or FastAPI `Depends` |
-| **Config** | `application.yml` (AMIGA metadata) | `.env` + `pydantic-settings` |
-| **API Generation** | OpenAPI Generator → `*_rest_server/` | Manual FastAPI routes |
-| **Dependencies** | `fwk-amigapython[rest-server,database-sql]` | `fastapi`, `sqlalchemy[asyncio]`, `uvicorn` |
-| **Build** | `hatchling` | `hatchling` |
-| **ORM Entity Base** | `Base(AsyncAttrs, DeclarativeBase)` | Same |
-| **Session Management** | `DatabaseFactory.get_session()` | `async_sessionmaker` context manager |
+| Aspect | Details |
+|--------|---------|
+| **Framework** | Vanilla FastAPI |
+| **DI** | Manual wiring or `dependency-injector` |
+| **Database** | Vanilla SQLAlchemy async session |
+| **Auth** | Custom middleware or FastAPI `Depends` |
+| **Config** | `.env` + `pydantic-settings` |
+| **API Generation** | Manual FastAPI routes |
+| **Dependencies** | `fastapi`, `sqlalchemy[asyncio]`, `uvicorn` |
+| **Build** | `hatchling` |
+| **ORM Entity Base** | `Base(AsyncAttrs, DeclarativeBase)` |
+| **Session Management** | `async_sessionmaker` context manager |
 
 ---
 

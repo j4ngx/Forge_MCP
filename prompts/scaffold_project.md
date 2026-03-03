@@ -22,7 +22,7 @@ WORKFLOW (follow this order strictly)
 
 1. VALIDATE INPUTS
    - Verify that `project_name` and at least one entity name are provided.
-   - Validate the stack choice ("amiga" or "generic") and db_backend.
+   - Validate the stack choice ("generic") and db_backend.
    - Normalize entity names to PascalCase for classes and snake_case for files.
 
 2. CREATE DIRECTORY STRUCTURE
@@ -53,8 +53,7 @@ WORKFLOW (follow this order strictly)
    - Repository adapter: Implements domain port, composes database repository
    - Controller: Injects use cases, delegates to application mappers
    - DI module: binds port → adapter, services, use cases, controller
-     * AMIGA stack: `opyoid.Module` with `self.bind()`
-     * Generic stack: manual wiring function
+     * Manual wiring function
 
 6. GENERATE SHARED FILES
    - `code/<project_name>/__init__.py` — app entry with DI registration
@@ -89,13 +88,6 @@ CODING STANDARDS
 
 STACK-SPECIFIC BEHAVIOR
 
-When stack = "amiga":
-- DI uses `opyoid.Module` with `self.bind()` calls
-- Entry point uses `@AmigaStartup(modules=[...])`
-- Dependencies include `fwk-amigapython[rest-server,database-sql]`
-- Config via `application.yml`
-
-When stack = "generic":
 - DI uses manual wiring or `dependency-injector` Container
 - Entry point uses vanilla FastAPI + Uvicorn
 - Dependencies include `fastapi`, `sqlalchemy[asyncio]`, `uvicorn`
@@ -109,7 +101,7 @@ After generating all files, produce a summary in this format:
 ## Scaffold Summary for `<project_name>`
 
 ### Configuration
-- **Stack**: <amiga|generic>
+- **Stack**: generic
 - **Database**: <db_backend>
 - **Python**: <python_version>
 - **Entities**: <entity_1>, <entity_2>, ...

@@ -8,7 +8,7 @@ A **Model Context Protocol (MCP)** server exposing developer-productivity tools 
 |------|-------------|
 | **`review_pr`** | Senior-level Python PR code review. Accepts a Git diff and optional metadata, returns a structured Markdown review covering logic, design, security, performance, testing, readability, and integration. |
 | **`apply_issue`** | End-to-end GitHub issue implementation. Creates a branch via `gh buddy`, proposes an action plan with a **mandatory approval gate**, implements the solution, self-reviews using `review_pr`, and creates a PR. |
-| **`scaffold_project`** | Generate a complete hexagonal-architecture Python project on disk. Accepts entity names and creates domain models, repository ports, services, use cases, mappers, ORM entities, controllers, DI modules, REST stubs, and tests — supporting both AMIGA and generic (vanilla FastAPI) stacks. |
+| **`scaffold_project`** | Generate a complete hexagonal-architecture Python project on disk. Accepts entity names and creates domain models, repository ports, services, use cases, mappers, ORM entities, controllers, DI modules, REST stubs, and tests — using vanilla FastAPI with hexagonal (ports & adapters) architecture. |
 
 **Architecture highlights:**
 
@@ -94,7 +94,7 @@ The agent will invoke the `scaffold_project` tool and generate the full director
 
 You can also specify the stack and database:
 
-> *Scaffold project "billing" with entities Invoice, Payment using the amiga stack and mariadb*
+> *Scaffold project "billing" with entities Invoice, Payment using mariadb*
 
 ## Adding a New Tool
 
