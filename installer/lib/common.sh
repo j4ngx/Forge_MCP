@@ -81,7 +81,7 @@ _log_raw() {
 }
 
 log()     { _log_raw "    $*"; }
-debug()   { [[ "$VERBOSE" == true ]] && _log_raw "${DIM}DBG $*${NC}" || true; }
+debug()   { if [[ "$VERBOSE" == true ]]; then _log_raw "${DIM}DBG $*${NC}"; fi; }
 success() { _log_raw "${GREEN} ✔  $*${NC}"; }
 warn()    { _log_raw "${YELLOW} ⚠  $*${NC}"; }
 info()    { _log_raw "${CYAN} ℹ  $*${NC}"; }

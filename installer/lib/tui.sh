@@ -363,7 +363,9 @@ tui_steps_render() {
 
   # Count completed
   for i in "${!_TUI_STEPS[@]}"; do
-    [[ "${_TUI_STEP_STATUS[$i]}" == "done" ]] && (( done_count++ ))
+    if [[ "${_TUI_STEP_STATUS[$i]}" == "done" ]]; then
+      done_count=$((done_count + 1))
+    fi
   done
 
   echo

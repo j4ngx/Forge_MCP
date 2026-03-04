@@ -210,7 +210,7 @@ run_preflight() {
   preflight_check_python  || true   # Not fatal, we can install it
   preflight_check_uv      || true   # Not fatal, we can install it
   preflight_check_vscode  || true   # Not fatal, warn only
-  preflight_check_disk    || (( failures++ ))
+  preflight_check_disk "$HOME" || (( failures++ ))
   preflight_check_network || true   # Not fatal if installing locally
 
   if [[ "$OS_TYPE" == "macos" ]]; then
