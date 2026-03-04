@@ -146,7 +146,8 @@ configure_vscode() {
 
   # Back up existing file
   if [[ -f "$mcp_json" ]]; then
-    local backup="${mcp_json}.backup.$(date +%s)"
+    local backup
+    backup="${mcp_json}.backup.$(date +%s)"
     cp "$mcp_json" "$backup"
     debug "Backup saved to ${backup}"
   fi

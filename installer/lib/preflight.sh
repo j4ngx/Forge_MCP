@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2034
 # =============================================================================
 # lib/preflight.sh — Pre-flight checks for Forge MCP Installer
 # =============================================================================
 # Validates system requirements: OS, Python, disk, VS Code, network, git.
+# Variables assigned here are consumed by scripts that source this file.
 # =============================================================================
 
 [[ -n "${_FORGE_PREFLIGHT_LOADED:-}" ]] && return 0

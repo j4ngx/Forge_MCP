@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2034
 # =============================================================================
 # lib/common.sh — Shared constants, colours, logging and utility functions
+# Variables defined here are used by scripts that source this file.
 # =============================================================================
 
 [[ -n "${_FORGE_COMMON_LOADED:-}" ]] && return 0
@@ -8,7 +10,6 @@ readonly _FORGE_COMMON_LOADED=1
 
 ###############################################################################
 # Global constants & defaults
-# shellcheck disable=SC2034
 ###############################################################################
 
 readonly INSTALLER_NAME="Forge MCP Installer"
@@ -95,8 +96,9 @@ _SPINNER_PID=""
 
 spinner_start() {
   local msg="${1:-Working...}"
+  local style="${2:-dots}"
   if declare -F tui_spinner_start >/dev/null 2>&1; then
-    tui_spinner_start "$msg"
+    tui_spinner_start "$msg" "$style"
     return
   fi
   if [[ ! -t 1 ]]; then
