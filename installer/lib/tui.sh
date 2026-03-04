@@ -109,7 +109,23 @@ _tui_repeat() {
 }
 
 _tui_strip_ansi() {
-  printf '%s' "$1" | sed 's/\x1b\[[0-9;]*m//g'
+  # Use literal ESC byte ($'\033') for BSD sed compatibility (macOS)
+  printf '%s' "$1" | sed $'s/\033\\[[0-9;]*m//g'
+}
+
+_tui_display_width() {
+  # Return the approximate terminal display width of a string.
+  # Accounts for wide characters (emojis) that occupy 2 columns but
+  # are counted as 1 code point by ${#var}.
+  local text="$1"
+  local chars=${#text}
+  local bytes
+  bytes=$(printf '%s' "$text" | wc -c | tr -d ' ')
+  # 4-byte UTF-8 sequences (emojis U+10000+) are 2 columns wide.
+  # Each such character adds 3 extra bytes over its 1-codepoint count.
+  local wide=$(( (bytes - chars) / 3 ))
+  (( wide < 0 )) && wide=0
+  echo $(( chars + wide ))
 }
 
 _tui_center() {
@@ -118,7 +134,9 @@ _tui_center() {
   w="$(tui_term_width)"
   local stripped
   stripped="$(_tui_strip_ansi "$text")"
-  local pad=$(( (w - ${#stripped}) / 2 ))
+  local vis_w
+  vis_w="$(_tui_display_width "$stripped")"
+  local pad=$(( (w - vis_w) / 2 ))
   (( pad < 0 )) && pad=0
   _tui_repeat ' ' "$pad"
   printf '%b\n' "$text"
@@ -144,7 +162,9 @@ tui_box() {
   if [[ -n "$title" ]]; then
     local stripped
     stripped="$(_tui_strip_ansi "$title")"
-    local pad=$((inner - ${#stripped} - 2))
+    local vis_w
+    vis_w="$(_tui_display_width "$stripped")"
+    local pad=$((inner - vis_w - 2))
     (( pad < 0 )) && pad=0
     printf '%b  %s %b%b%s%b' "$color" "$BOX_V" "$TUI_BOLD" "$TUI_WHITE" "$title" "$TUI_RESET"
     printf '%b' "$color"
@@ -168,7 +188,15 @@ tui_box() {
     fi
     local stripped
     stripped="$(_tui_strip_ansi "$line")"
-    local pad=$((inner - ${#stripped} - 2))
+    local vis_w
+    vis_w="$(_tui_display_width "$stripped")"
+    local max_content=$((inner - 2))
+    # Truncate overflowing content to preserve box alignment
+    if (( vis_w > max_content )); then
+      line="${stripped:0:$((max_content - 1))}…"
+      vis_w=$max_content
+    fi
+    local pad=$((inner - vis_w - 2))
     (( pad < 0 )) && pad=0
     printf '%b  %s %b%b' "$color" "$BOX_V" "$TUI_RESET" "$line"
     _tui_repeat ' ' "$pad"
@@ -199,7 +227,9 @@ tui_box_double() {
   if [[ -n "$title" ]]; then
     local stripped
     stripped="$(_tui_strip_ansi "$title")"
-    local pad=$((inner - ${#stripped} - 2))
+    local vis_w
+    vis_w="$(_tui_display_width "$stripped")"
+    local pad=$((inner - vis_w - 2))
     (( pad < 0 )) && pad=0
     printf '%b  %s %b%b%s%b' "$color" "$BOX2_V" "$TUI_BOLD" "$TUI_WHITE" "$title" "$TUI_RESET"
     printf '%b' "$color"
@@ -221,7 +251,14 @@ tui_box_double() {
     fi
     local stripped
     stripped="$(_tui_strip_ansi "$line")"
-    local pad=$((inner - ${#stripped} - 2))
+    local vis_w
+    vis_w="$(_tui_display_width "$stripped")"
+    local max_content=$((inner - 2))
+    if (( vis_w > max_content )); then
+      line="${stripped:0:$((max_content - 1))}…"
+      vis_w=$max_content
+    fi
+    local pad=$((inner - vis_w - 2))
     (( pad < 0 )) && pad=0
     printf '%b  %s %b%b' "$color" "$BOX2_V" "$TUI_RESET" "$line"
     _tui_repeat ' ' "$pad"
@@ -834,6 +871,12 @@ tui_plan_card() {
   local w
   w="$(tui_term_width)"
 
+  # Shorten paths: replace $HOME with ~ for cleaner display
+  local _dir="${FORGE_MCP_DIR:-~/Projects/forge_mcp}"
+  _dir="${_dir/#$HOME/~}"
+  local _log="${LOG_FILE:-}"
+  _log="${_log/#$HOME/~}"
+
   TUI_BOX_COLOR="$TUI_ACCENT" tui_box "${ICON_CHART}  Installation Plan" \
     "" \
     "$(tui_kv_inline 'Python'     "$( [[ "$SKIP_PYTHON" == true ]] && echo "${TUI_MUTED}skip${TUI_RESET}" || echo "≥ ${MIN_PYTHON_VERSION}" )")" \
@@ -843,10 +886,10 @@ tui_plan_card() {
     "" \
     "$(tui_kv_inline 'Source'     "$( [[ "$INSTALL_FROM_LOCAL" == true ]] && echo "${TUI_ACCENT2}local copy${TUI_RESET}" || echo "${TUI_ACCENT2}${FORGE_MCP_REPO}${TUI_RESET}" )")" \
     "$(tui_kv_inline 'Branch'     "${TUI_ACCENT2}${FORGE_MCP_BRANCH}${TUI_RESET}")" \
-    "$(tui_kv_inline 'Install dir' "${TUI_DIM}${FORGE_MCP_DIR:-~/Projects/forge_mcp}${TUI_RESET}")" \
+    "$(tui_kv_inline 'Install dir' "${TUI_DIM}${_dir}${TUI_RESET}")" \
     "" \
     "$(tui_kv_inline 'Dry run'    "$( [[ "$DRY_RUN" == true ]] && echo "${TUI_WARNING}yes${TUI_RESET}" || echo "${TUI_MUTED}no${TUI_RESET}" )")" \
-    "$(tui_kv_inline 'Log file'   "${TUI_DIM}${LOG_FILE}${TUI_RESET}")"
+    "$(tui_kv_inline 'Log file'   "${TUI_DIM}${_log}${TUI_RESET}")"
 }
 
 ###############################################################################
@@ -869,7 +912,9 @@ tui_completion_screen() {
   local msg="${ICON_SPARKLE}  Forge MCP is ready!  ${ICON_SPARKLE}"
   local stripped
   stripped="$(_tui_strip_ansi "$msg")"
-  local pad=$(( (inner - ${#stripped}) / 2 ))
+  local vis_w
+  vis_w="$(_tui_display_width "$stripped")"
+  local pad=$(( (inner - vis_w) / 2 ))
   (( pad < 0 )) && pad=0
 
   printf '  %b%b' "$TUI_SUCCESS" "$TUI_BOLD"
@@ -909,7 +954,9 @@ tui_failure_screen() {
 
   printf '  %b%b  %s  Installation failed (exit code %d)%b\n' \
     "$TUI_ERROR" "$TUI_BOLD" "$ICON_CROSS" "$exit_code" "$TUI_RESET"
-  printf '  %b     Log: %s%b\n' "$TUI_ERROR" "$LOG_FILE" "$TUI_RESET"
+  local _log="${LOG_FILE:-}"
+  _log="${_log/#$HOME/~}"
+  printf '  %b     Log: %s%b\n' "$TUI_ERROR" "$_log" "$TUI_RESET"
   printf '  %b     Re-run the installer — completed steps are skipped.%b\n' \
     "$TUI_ERROR" "$TUI_RESET"
 
@@ -925,25 +972,35 @@ tui_failure_screen() {
 tui_summary_dashboard() {
   local elapsed="$1"
 
+  # Shorten paths: replace $HOME with ~
+  local _dir="${FORGE_MCP_DIR:-N/A}"
+  _dir="${_dir/#$HOME/~}"
+  local _log="${LOG_FILE:-}"
+  _log="${_log/#$HOME/~}"
+
   echo
   TUI_BOX_COLOR="$TUI_ACCENT" tui_box "${ICON_CHART}  Installation Summary" \
     "" \
-    "$(tui_kv_inline 'Install dir'  "${FORGE_MCP_DIR:-N/A}")" \
+    "$(tui_kv_inline 'Install dir'  "$_dir")" \
     "$(tui_kv_inline 'Python'       "${PYTHON_VERSION:-not checked}")" \
     "$(tui_kv_inline 'uv'           "${UV_VERSION:-not checked}")" \
     "$(tui_kv_inline 'VS Code'      "$(command -v "${VSCODE_CMD:-code}" 2>/dev/null || echo 'not found')")" \
     "$(tui_kv_inline 'Duration'     "$elapsed")" \
-    "$(tui_kv_inline 'Log'          "${TUI_DIM}${LOG_FILE}${TUI_RESET}")" \
+    "$(tui_kv_inline 'Log'          "${TUI_DIM}${_log}${TUI_RESET}")" \
     ""
 }
 
 tui_next_steps_card() {
+  # Shorten paths: replace $HOME with ~
+  local _dir="${FORGE_MCP_DIR:-~/Projects/forge_mcp}"
+  _dir="${_dir/#$HOME/~}"
+
   echo
   TUI_BOX_COLOR="$TUI_ACCENT2" tui_box "${ICON_ROCKET}  Next Steps" \
     "" \
     "${TUI_BOLD}1.${TUI_RESET}  Open VS Code in the project:" \
     "" \
-    "$(tui_command_hint '' "code ${FORGE_MCP_DIR:-~/Projects/forge_mcp}")" \
+    "$(tui_command_hint '' "code ${_dir}")" \
     "" \
     "${TUI_BOLD}2.${TUI_RESET}  The MCP server is configured in ${TUI_DIM}mcp.json${TUI_RESET}." \
     "    Copilot Chat auto-discovers the forge_mcp tools." \
