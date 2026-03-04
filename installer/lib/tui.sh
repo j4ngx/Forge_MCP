@@ -494,7 +494,8 @@ tui_confirm() {
     printf '  %b%s%b %s [%b]: ' "$TUI_ACCENT2" "$ICON_ARROW" "$TUI_RESET" "$prompt" "$hint"
     read -r yn
     yn="${yn:-$default}"
-    case "${yn,,}" in
+    yn_lower="$(printf '%s' "$yn" | tr '[:upper:]' '[:lower:]')"
+    case "$yn_lower" in
       y|yes) return 0 ;;
       n|no)  return 1 ;;
       *)     printf '  %b%s  Please answer y or n.%b\n' "$TUI_WARNING" "$ICON_WARN" "$TUI_RESET" ;;

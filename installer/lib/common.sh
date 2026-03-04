@@ -202,7 +202,8 @@ confirm() {
     printf '  %s [%s]: ' "$prompt" "$default"
     read -r yn
     yn="${yn:-$default}"
-    case "${yn,,}" in
+    yn_lower="$(printf '%s' "$yn" | tr '[:upper:]' '[:lower:]')"
+    case "$yn_lower" in
       y|yes) return 0 ;;
       n|no)  return 1 ;;
       *)     echo "  Please answer y or n." ;;
