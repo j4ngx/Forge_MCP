@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/j4ngx/Forge_MCP#readme
+    about: Check the README for setup instructions and usage guides.
+  - name: Discussions
+    url: https://github.com/j4ngx/Forge_MCP/discussions
+    about: Ask questions or share ideas in GitHub Discussions.

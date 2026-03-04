@@ -53,7 +53,9 @@ setup_mcp_source() {
     fi
   else
     info "Cloning forge_mcp to ${install_dir}…"
-    run_cmd git clone "https://github.com/${FORGE_MCP_REPO}.git" "$install_dir"
+    spinner_start "Cloning repository…" "earth"
+    run_cmd git clone "https://github.com/${FORGE_MCP_REPO}.git" "$install_dir" >> "$LOG_FILE" 2>&1
+    spinner_stop
   fi
 
   if [[ ! -f "${install_dir}/server.py" ]]; then
@@ -87,13 +89,18 @@ install_mcp_deps() {
   uv_cmd="$(resolve_uv_cmd)"
   debug "Using uv at: ${uv_cmd}"
 
-  run_cmd "$uv_cmd" --directory "$install_dir" sync
-
-  if (( $? == 0 )); then
+  spinner_start "Running uv sync…" "braille"
+  if run_cmd "$uv_cmd" --directory "$install_dir" sync >"$LOG_FILE.uvsync" 2>&1; then
+    spinner_stop
     success "MCP dependencies installed"
+    cat "$LOG_FILE.uvsync" >> "$LOG_FILE"
+    rm -f "$LOG_FILE.uvsync"
     return 0
   fi
 
+  spinner_stop
+  cat "$LOG_FILE.uvsync" >> "$LOG_FILE" 2>/dev/null
+  rm -f "$LOG_FILE.uvsync"
   fail "uv sync failed"
   return 1
 }
@@ -121,12 +128,13 @@ verify_mcp_server() {
   local uv_cmd
   uv_cmd="$(resolve_uv_cmd)"
   local test_output
+  local test_ok=false
   test_output="$(cd "$install_dir" && "$uv_cmd" run "$py" -c "
 from server import mcp
 print(f'forge_mcp server v{getattr(mcp, \"name\", \"unknown\")} OK')
-" 2>&1)"
+" 2>&1)" && test_ok=true || test_ok=false
 
-  if [[ $? -eq 0 ]] && [[ "$test_output" == *"OK"* ]]; then
+  if [[ "$test_ok" == true ]] && [[ "$test_output" == *"OK"* ]]; then
     success "MCP server verified: ${test_output}"
     tui_health_row "MCP Server" "responsive" true
     return 0

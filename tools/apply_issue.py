@@ -226,10 +226,7 @@ def apply_issue(
     """
     # ── Validate inputs ──────────────────────────────────────────────────
     if not issue_url or not issue_url.strip():
-        msg = (
-            "issue_url must not be empty. Provide a GitHub issue URL "
-            "(e.g. https://github.com/owner/repo/issues/42)."
-        )
+        msg = "issue_url must not be empty. Provide a GitHub issue URL (e.g. https://github.com/owner/repo/issues/42)."
         raise ValueError(msg)
 
     if not issue_title or not issue_title.strip():
@@ -240,10 +237,7 @@ def apply_issue(
         raise ValueError(msg)
 
     if branch_type not in VALID_BRANCH_TYPES:
-        msg = (
-            f"Invalid branch_type '{branch_type}'. "
-            f"Must be one of: {sorted(VALID_BRANCH_TYPES)}"
-        )
+        msg = f"Invalid branch_type '{branch_type}'. Must be one of: {sorted(VALID_BRANCH_TYPES)}"
         raise ValueError(msg)
 
     # ── Parse URL ────────────────────────────────────────────────────────
@@ -301,7 +295,7 @@ def apply_issue(
         "2. **Propose an action plan** using the format specified in the system prompt.\n"
         "3. \u26d4 **STOP AND WAIT FOR USER APPROVAL** — Do NOT write any code, "
         "create any file, or make any change until the user explicitly approves "
-        "the plan (e.g. \"ok\", \"go ahead\", \"approved\"). If the user requests "
+        'the plan (e.g. "ok", "go ahead", "approved"). If the user requests '
         "changes, revise the plan and wait again.\n"
         "4. **Implement** the approved plan following coding standards.\n"
         "5. **Self-review** by calling the `review_pr` MCP tool with your diff.\n"

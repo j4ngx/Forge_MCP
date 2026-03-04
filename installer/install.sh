@@ -186,30 +186,8 @@ interactive_review() {
 
 print_summary() {
   local elapsed="$1"
-
-  echo
-  tui_divider "double" "$TUI_ACCENT"
-  echo
-
-  tui_status_line "Install dir"  "${FORGE_MCP_DIR:-N/A}" "info"
-  tui_status_line "Python"       "${PYTHON_VERSION:-not checked}" "ok"
-  tui_status_line "uv"           "${UV_VERSION:-not checked}" "ok"
-  tui_status_line "VS Code"      "$(command -v "${VSCODE_CMD:-code}" 2>/dev/null || echo 'not found')" "info"
-  tui_status_line "Duration"     "$elapsed" "info"
-  tui_status_line "Log"          "$LOG_FILE" "info"
-
-  echo
-  tui_box "Next Steps" \
-    "" \
-    "1. Open VS Code in the forge_mcp project:" \
-    "   ${TUI_BOLD}code ${FORGE_MCP_DIR:-~/Projects/forge_mcp}${TUI_RESET}" \
-    "" \
-    "2. The MCP server is configured in your User mcp.json." \
-    "   Copilot Chat will auto-discover the forge_mcp tools." \
-    "" \
-    "3. In Copilot Agent Mode, use the review_pr tool:" \
-    "   ${TUI_MUTED}\"Review the PR diff I just pasted\"${TUI_RESET}" \
-    ""
+  tui_summary_dashboard "$elapsed"
+  tui_next_steps_card
 }
 
 ###############################################################################
@@ -259,22 +237,27 @@ main() {
 
   # Step 1: Preflight
   tui_step_active 0
+  tui_steps_render
   if step_preflight; then tui_step_done 0; else tui_step_failed 0; fi
 
   # Step 2: Python & uv
   tui_step_active 1
+  tui_steps_render
   if step_python; then tui_step_done 1; else tui_step_failed 1; fi
 
   # Step 3: MCP server
   tui_step_active 2
+  tui_steps_render
   if step_mcp_source; then tui_step_done 2; else tui_step_failed 2; fi
 
   # Step 4: VS Code
   tui_step_active 3
+  tui_steps_render
   if step_vscode; then tui_step_done 3; else tui_step_failed 3; fi
 
   # Step 5: Verify
   tui_step_active 4
+  tui_steps_render
   if step_verify; then tui_step_done 4; else tui_step_failed 4; fi
 
   # --- Final render ---

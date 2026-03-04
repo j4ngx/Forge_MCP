@@ -36,7 +36,7 @@ VALID_REVIEW_FOCUSES: frozenset[str] = frozenset({"logic", "performance", "secur
 VALID_DETAIL_LEVELS: frozenset[str] = frozenset({"summary", "thorough"})
 
 
-def review_pr(  # noqa: PLR0913
+def review_pr(
     pr_diff: str,
     pr_title: str = "",
     pr_description: str = "",
