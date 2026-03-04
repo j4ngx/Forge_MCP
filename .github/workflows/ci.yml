@@ -16,6 +16,9 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  UV_DEFAULT_INDEX: https://pypi.org/simple
+
 jobs:
   lint:
     name: Lint & Format

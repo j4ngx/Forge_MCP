@@ -11,6 +11,9 @@ on:
 permissions:
   contents: write
 
+env:
+  UV_DEFAULT_INDEX: https://pypi.org/simple
+
 jobs:
   quality-gate:
     name: Quality Gate
