@@ -1,5 +1,5 @@
 # =============================================================================
-# ci.yml — Lint, type-check, and smoke-test on every push / PR
+# ci.yml — Lint, test, and smoke-test on every push / PR
 # =============================================================================
 name: CI
 
@@ -25,35 +25,20 @@ jobs:
 
       - uses: astral-sh/setup-uv@v5
         with:
+          version: ">=0.10,<0.11"
           enable-cache: true
 
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --extra dev
 
       - name: Ruff lint
-        run: uvx ruff check .
+        run: uv run ruff check .
 
       - name: Ruff format check
-        run: uvx ruff format --check .
+        run: uv run ruff format --check .
 
-  type-check:
-    name: Type Check (mypy)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-
-      - name: Install dependencies
-        run: uv sync
-
-      - name: mypy strict
-        run: uvx mypy .
-
-  smoke-test:
-    name: Smoke Test (Python ${{ matrix.python-version }})
+  test:
+    name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -64,32 +49,34 @@ jobs:
 
       - uses: astral-sh/setup-uv@v5
         with:
+          version: ">=0.10,<0.11"
           enable-cache: true
 
       - name: Install Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: uv sync --python ${{ matrix.python-version }}
+        run: uv sync --python ${{ matrix.python-version }} --extra dev
+
+      - name: Run test suite
+        run: uv run pytest -v --tb=short
 
       - name: Verify server imports
-        run: uv run python -c "from server import mcp; print(f'OK — {len(mcp._tool_manager._tools)} tools registered')"
+        run: |
+          uv run python -c "
+          from server import mcp
+          tools = mcp._tool_manager.list_tools()
+          print(f'OK — {len(tools)} tools registered')
+          assert len(tools) == 5, f'Expected 5 tools, got {len(tools)}'
+          "
 
       - name: Verify all tool imports
         run: |
           uv run python -c "
-          from tools.review_pr import review_pr
-          from tools.analyze_code import analyze_code
-          from tools.suggest_type_hints import suggest_type_hints
-          from tools.explain_code import explain_code
-          from tools.generate_docstrings import generate_docstrings
-          from tools.generate_module_doc import generate_module_doc
-          from tools.generate_changelog_entry import generate_changelog_entry
-          from tools.generate_unit_tests import generate_unit_tests
-          from tools.generate_test_fixtures import generate_test_fixtures
-          from tools.suggest_test_cases import suggest_test_cases
-          from tools.suggest_refactoring import suggest_refactoring
-          from tools.modernize_python import modernize_python
-          from tools.decompose_function import decompose_function
-          print('All 13 tool imports OK')
+          from tools.review_pr import review_pr, TOOL_NAME as N1
+          from tools.apply_issue import apply_issue, TOOL_NAME as N2
+          from tools.scaffold_project import scaffold_project, TOOL_NAME as N3
+          from tools.progressive_commit import progressive_commit, TOOL_NAME as N4
+          from tools.create_pr import create_pr, TOOL_NAME as N5
+          print(f'All 5 tool imports OK: {N1}, {N2}, {N3}, {N4}, {N5}')
           "

@@ -1,23 +1,37 @@
 ---
 name: Feature Request
-about: Suggest a new tool or improvement
+about: Suggest a new tool or improvement for forge_mcp
 title: "[Feature] "
 labels: enhancement
 assignees: ""
 ---
 
-## Description
+## Feature
 
-A clear description of the feature you'd like.
+**Description**
 
-## Use Case
+<!-- A clear description of the feature you'd like. What and why. -->
 
-Why is this feature useful? What problem does it solve?
+**Use Case**
 
-## Proposed Solution
+<!-- Why is this feature useful? What problem does it solve? Who benefits? -->
 
-How should it work?
+**Proposed Solution**
+
+<!-- How should it work? Describe the expected behaviour. -->
+
+**Acceptance Criteria**
+
+- [ ] Criterion 1
+- [ ] Criterion 2
+- [ ] Criterion 3
+
+---
 
 ## Alternatives Considered
 
-Any alternative approaches you've considered.
+<!-- Any alternative approaches you've considered. Why were they discarded? -->
+
+## Additional Context
+
+<!-- Mockups, references, links, or any other context. -->
