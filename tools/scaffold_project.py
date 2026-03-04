@@ -396,19 +396,17 @@ def _gen_use_cases(pkg: Path, proj: str, pascal: str, snake: str) -> list[Path]:
     _touch_init(uc_dir)
 
     cases = [
-        ("Get", "entity_id: int", f"return await self._service.get(db, entity_id)"),
-        ("Create", f"entity: {pascal}", f"return await self._service.create(db, entity)"),
-        ("Update", f"entity: {pascal}", f"return await self._service.update(db, entity)"),
-        ("Delete", "entity_id: int", f"await self._service.delete(db, entity_id)\n        return None"),
+        ("Get", "entity_id: int", "return await self._service.get(db, entity_id)"),
+        ("Create", f"entity: {pascal}", "return await self._service.create(db, entity)"),
+        ("Update", f"entity: {pascal}", "return await self._service.update(db, entity)"),
+        ("Delete", "entity_id: int", "await self._service.delete(db, entity_id)\n        return None"),
     ]
 
     paths: list[Path] = []
     for verb, param, body in cases:
         verb_lower = verb.lower()
         ret = pascal if verb != "Delete" else "None"
-        ret_import = (
-            f"from {proj}.domain.model.{snake} import {pascal}\n" if verb in ("Create", "Update") else ""
-        )
+        ret_import = f"from {proj}.domain.model.{snake} import {pascal}\n" if verb in ("Create", "Update") else ""
         p = uc_dir / f"{verb_lower}_{snake}_use_case.py"
         _w(
             p,
@@ -431,7 +429,7 @@ def _gen_use_cases(pkg: Path, proj: str, pascal: str, snake: str) -> list[Path]:
 
                     Args:
                         db: Async database session.
-                        {param.split(':')[0].strip()}: {"Primary key" if "id" in param else "Domain model"}.
+                        {param.split(":")[0].strip()}: {"Primary key" if "id" in param else "Domain model"}.
 
                     Returns:
                         {"The matching or persisted " + pascal if verb != "Delete" else "None"}.
@@ -1256,7 +1254,7 @@ dependencies = [
 
         [tool.ruff]
         line-length = 120
-        target-version = "py{python_version.replace('.', '')}"
+        target-version = "py{python_version.replace(".", "")}"
 
         [tool.ruff.lint]
         select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
@@ -1449,7 +1447,7 @@ def _gen_test_stubs(tests_dir: Path, proj: str, pascal: str, snake: str) -> list
 # ── Main function ────────────────────────────────────────────────────────────
 
 
-def scaffold_project(  # noqa: PLR0913
+def scaffold_project(
     project_name: str,
     entity_names: str,
     stack: str = "generic",
